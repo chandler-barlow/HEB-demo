@@ -1,0 +1,28 @@
+CREATE TABLE images (
+    id SERIAL PRIMARY KEY,
+    uri VARCHAR(255) NOT NULL,
+    date DATE NOT NULL,
+    time TIME NOT NULL,
+    width INT NOT NULL,
+    height INT NOT NULL,
+    format VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE tags (
+    id SERIAL PRIMARY KEY,
+    label VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE tag_pairs (
+  tag_id INTEGER REFERENCES tags(id) NOT NULL,
+  image_id INTEGER REFERENCES images(id) NOT NULL
+);
+
+INSERT INTO images (uri, date, time, width, height, format)
+VALUES ('https://www.rando-image.com', CURRENT_DATE, CURRENT_TIME, 280, 280, 'jpeg');
+
+SELECT label, image_id, uri 
+FROM tag_pairs
+	JOIN tags on tags.id = tag_id
+	JOIN images on images.id = image_id
+WHERE label LIKE '%cat%';

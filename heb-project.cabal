@@ -1,0 +1,91 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.35.0.
+--
+-- see: https://github.com/sol/hpack
+
+name:           heb-project
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/githubuser/heb-project#readme>
+homepage:       https://github.com/githubuser/heb-project#readme
+bug-reports:    https://github.com/githubuser/heb-project/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2023 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    CHANGELOG.md
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/heb-project
+
+library
+  exposed-modules:
+      Feature.Images.HTTP
+      Feature.Images.PG
+      Feature.Images.Types
+      Feature.TagPairs.PG
+      Feature.TagPairs.Types
+      Feature.Tags.PG
+      Feature.Tags.Types
+  other-modules:
+      Paths_heb_project
+  hs-source-dirs:
+      src
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , http-types
+    , mtl
+    , postgresql-simple
+    , scotty
+    , text
+    , time
+    , transformers
+  default-language: Haskell2010
+
+executable heb-project-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_heb_project
+  hs-source-dirs:
+      app
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , heb-project
+    , http-types
+    , mtl
+    , postgresql-simple
+    , scotty
+    , text
+    , time
+    , transformers
+  default-language: Haskell2010
+
+test-suite heb-project-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_heb_project
+  hs-source-dirs:
+      test
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , heb-project
+    , http-types
+    , mtl
+    , postgresql-simple
+    , scotty
+    , text
+    , time
+    , transformers
+  default-language: Haskell2010
