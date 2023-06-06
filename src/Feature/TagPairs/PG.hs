@@ -1,5 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Feature.TagPairs.PG
@@ -13,13 +11,15 @@ where
 import Database.PostgreSQL.Simple
   ( close,
     connect,
+    execute,
     query,
   )
 import Feature.TagPairs.Types (TagPair)
+import Util.Config (pgConfig)
 
 tagPairByImgId :: Int -> IO [TagPair]
 tagPairByImgId i = do
-  conn <- connect pgConfig
+  conn <- pgConfig >>= connect
   tagPairs <- query conn q [i]
   close conn
   return tagPairs
@@ -28,7 +28,7 @@ tagPairByImgId i = do
 
 tagPairByTagId :: Int -> IO [TagPair]
 tagPairByTagId i = do
-  conn <- connect pgConfig
+  conn <- pgConfig >>= connect
   tagPairs <- query conn q [i]
   close conn
   return tagPairs
@@ -37,7 +37,7 @@ tagPairByTagId i = do
 
 addTagPair :: Int -> Int -> IO ()
 addTagPair imgId tagId = do
-  conn <- connect pgConfig
+  conn <- pgConfig >>= connect
   _ <- execute conn q (imgId, tagId)
   close conn
   return ()

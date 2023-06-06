@@ -9,12 +9,13 @@ module Feature.Tags.PG
 where
 
 import qualified Data.Text as T
-import Database.PostgreSQL.Simple
+import Database.PostgreSQL.Simple (close, connect, query)
 import Feature.Tags.Types (Tag (..))
+import Util.Config (pgConfig)
 
 tagById :: Int -> IO [Tag]
 tagById i = do
-  c <- connect pgConfig
+  c <- pgConfig >>= connect
   tags <- query c q [i]
   close c
   return tags
@@ -23,7 +24,7 @@ tagById i = do
 
 addTag :: T.Text -> IO Tag
 addTag l = do
-  c <- connect pgConfig
+  c <- pgConfig >>= connect
   tags <- query c q [T.unpack l]
   close c
   return $ head tags
@@ -32,7 +33,7 @@ addTag l = do
 
 tagsByImgId :: Int -> IO [Tag]
 tagsByImgId i = do
-  c <- connect pgConfig
+  c <- pgConfig >>= connect
   tags <- query c q [i]
   close c
   return tags

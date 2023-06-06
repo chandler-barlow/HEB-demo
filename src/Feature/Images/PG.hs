@@ -14,10 +14,11 @@ import Data.List (group, sort)
 import qualified Data.Text as T
 import Database.PostgreSQL.Simple (close, connect, query)
 import Feature.Images.Types (Image)
+import Util.Config (pgConfig)
 
 allImages :: IO [Image]
 allImages = do
-  conn <- connect pgConfig
+  conn <- pgConfig >>= connect
   imgs <- query conn q ()
   close conn
   return imgs
@@ -27,7 +28,7 @@ allImages = do
 -- maybe I should actually query for images by tag
 searchByTags :: [T.Text] -> IO [Image]
 searchByTags tags = do
-  conn <- connect pgConfig
+  conn <- pgConfig >>= connect
   res <- queryByTags conn fTags
   close conn
   return $ rmDupes res
@@ -45,7 +46,7 @@ searchByTags tags = do
 
 searchById :: Int -> IO [Image]
 searchById i = do
-  conn <- connect pgConfig
+  conn <- pgConfig >>= connect
   imgs <- query conn q [i]
   close conn
   return imgs
@@ -54,7 +55,7 @@ searchById i = do
 
 addImage :: T.Text -> Int -> Int -> T.Text -> IO Image
 addImage u w h f = do
-  conn <- connect pgConfig
+  conn <- pgConfig >>= connect
   r <- query conn q (T.unpack u, w, h, T.unpack f)
   close conn
   return $ head r
