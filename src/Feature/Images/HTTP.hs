@@ -34,9 +34,6 @@ getMeta imgs = forM imgs $ \img -> do
   tags <- tagsByImgId $ imageId img
   return Metadata {metadata = img, tags = map label tags}
 
-toList :: T.Text -> [T.Text]
-toList s = T.splitOn (T.pack ",") $ T.filter (/= '\"') s
-
 -- Routes
 getImages :: ScottyM ()
 getImages = get "/images" $ do
@@ -78,23 +75,28 @@ procAutoTag True fname = do
   ts <- rekognize fname
   forM ts addTagIfNotExists
 
+toList :: T.Text -> [T.Text]
+toList s = T.splitOn (T.pack ",") $ T.filter (/= '\"') s
+
 toBool :: T.Text -> Bool
 toBool "true" = True
 toBool _ = False
 
--- tp is file type btw
 uploadImage :: ScottyM ()
 uploadImage = post "/images" $ do
   fs <- files
   let ftype = TL.pack . show . fileContentType . snd . head $ fs
   let fname = TL.toStrict . fst . head $ fs
   let fcontent = B.toStrict . fileContent . snd . head $ fs
-  uri <- liftIO $ uploadImageToS3 fname fcontent
-  img <- liftIO . addImage uri $ TL.toStrict ftype
   tagParams <- param "objects" `rescue` (\_ -> return ("" :: T.Text))
   aTagParam <- param "autotag" `rescue` (\_ -> return ("false" :: T.Text))
-  tagIds <- liftIO $ procTagParams tagParams
-  aTagIds <- liftIO $ procAutoTag (toBool aTagParam) fname
-  liftIO $ procTagPairs (imageId img) (tagIds ++ aTagIds)
+  img <- liftIO $ do
+    uri <- uploadImageToS3 fname fcontent
+    img <- addImage uri $ TL.toStrict ftype
+    tagIds <- procTagParams tagParams
+    aTagIds <- procAutoTag (toBool aTagParam) fname
+    procTagPairs (imageId img) (tagIds ++ aTagIds)
+    tags <- tagsByImgId (imageId img)
+    return Metadata {metadata = img, tags = map label tags}
   status status200
-  json img
+  json $ Response {items = [img]}
