@@ -1,11 +1,17 @@
+
+## TODO refactor out width and height
+ 
 CREATE TABLE images (
     id SERIAL PRIMARY KEY,
     uri VARCHAR(255) NOT NULL,
     date DATE NOT NULL,
     time TIME NOT NULL,
-    width INT NOT NULL,
-    height INT NOT NULL,
     format VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE tag_pairs (
+  tag_id INTEGER REFERENCES tags(id) NOT NULL,
+  image_id INTEGER REFERENCES images(id) NOT NULL
 );
 
 CREATE TABLE tags (
@@ -13,10 +19,7 @@ CREATE TABLE tags (
     label VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE tag_pairs (
-  tag_id INTEGER REFERENCES tags(id) NOT NULL,
-  image_id INTEGER REFERENCES images(id) NOT NULL
-);
+
 
 INSERT INTO images (uri, date, time, width, height, format)
 VALUES ('https://www.rando-image.com', CURRENT_DATE, CURRENT_TIME, 280, 280, 'jpeg');

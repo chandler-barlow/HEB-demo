@@ -40,8 +40,22 @@ packages:
 # - git: https://github.com/commercialhaskell/stack.git
 #   commit: e7b331f14bcffb8367cd58fbfc8b40ec7642100a
 #
-# extra-deps: []
-
+# extra-deps:
+# - aws-0.24@sha256:eb1310338b55ff4d71428775b83b5bcdc1fb2135ff78140248e80144fd6d53ff,14995
+## with amazon image rekognition
+extra-deps:
+  - github: brendanhay/amazonka
+    commit: 3e66cc1b07f2818d0b4fc346310ecdb1c3c27599
+    subdirs:
+    - lib/amazonka
+    - lib/amazonka-core
+    - lib/services/amazonka-sso
+    - lib/services/amazonka-sts
+    - lib/services/amazonka-s3
+    - lib/services/amazonka-rekognition
+  # - amazonka
+  # - amazonka-core
+  # - amazonka-rekognition
 # Override default flag values for local packages and extra-deps
 # flags: {}
 

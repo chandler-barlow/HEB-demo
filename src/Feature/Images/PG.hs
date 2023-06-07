@@ -16,6 +16,8 @@ import Database.PostgreSQL.Simple (close, connect, query)
 import Feature.Images.Types (Image)
 import Util.Config (pgConfig)
 
+-- TODO refactor out width and height
+
 allImages :: IO [Image]
 allImages = do
   conn <- pgConfig >>= connect
@@ -36,7 +38,7 @@ searchByTags tags = do
     queryByTags c ts = forM ts (queryByTag c) <&> mconcat
     queryByTag c t = query c q [t]
     q =
-      "SELECT images.id as id, uri, date, time, width, height, format \
+      "SELECT images.id as id, uri, date, time, format \
       \FROM tag_pairs \
       \JOIN tags on tags.id = tag_id \
       \JOIN images on images.id = image_id \
@@ -53,14 +55,14 @@ searchById i = do
   where
     q = "SELECT * FROM images WHERE id = ?"
 
-addImage :: T.Text -> Int -> Int -> T.Text -> IO Image
-addImage u w h f = do
+addImage :: T.Text -> T.Text -> IO Image
+addImage u f = do
   conn <- pgConfig >>= connect
-  r <- query conn q (T.unpack u, w, h, T.unpack f)
+  r <- query conn q (T.unpack u, T.unpack f)
   close conn
   return $ head r
   where
     q =
-      "INSERT INTO images (uri, width, height, format, date, time) \
-      \ VALUES (?, ?, ?, ?, CURRENT_DATE, CURRENT_TIME) \
-      \ RETURNING id, uri, date, time, width, height, format"
+      "INSERT INTO images (uri, format, date, time) \
+      \ VALUES (?, ?, CURRENT_DATE, CURRENT_TIME) \
+      \ RETURNING id, uri, date, time, format"

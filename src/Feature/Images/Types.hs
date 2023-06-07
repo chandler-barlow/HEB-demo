@@ -10,6 +10,8 @@ import Data.Time.LocalTime (TimeOfDay)
 import Database.PostgreSQL.Simple (FromRow)
 import GHC.Generics (Generic)
 
+-- TODO refactor out width and height
+
 data Metadata = Metadata
   { metadata :: Image,
     tags :: [T.Text]
@@ -30,8 +32,6 @@ data Image = Image
     uri :: T.Text,
     date :: Day,
     time :: TimeOfDay,
-    width :: Int,
-    height :: Int,
     format :: T.Text
   }
   deriving (Generic, Show, FromRow)

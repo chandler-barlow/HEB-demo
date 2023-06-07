@@ -27,6 +27,7 @@ library
   exposed-modules:
       Feature.Images.HTTP
       Feature.Images.PG
+      Feature.Images.Requests
       Feature.Images.Types
       Feature.TagPairs.PG
       Feature.TagPairs.Types
@@ -40,14 +41,22 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       aeson
+    , amazonka
+    , amazonka-core
+    , amazonka-rekognition
+    , amazonka-s3
     , base >=4.7 && <5
+    , bytestring
+    , http-conduit
     , http-types
+    , lens
     , mtl
     , postgresql-simple
     , scotty
     , text
     , time
     , transformers
+    , wai-extra
   default-language: Haskell2010
 
 executable heb-project-exe
@@ -59,34 +68,21 @@ executable heb-project-exe
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
+    , amazonka
+    , amazonka-core
+    , amazonka-rekognition
+    , amazonka-s3
     , base >=4.7 && <5
+    , bytestring
     , heb-project
+    , http-conduit
     , http-types
+    , lens
     , mtl
     , postgresql-simple
     , scotty
     , text
     , time
     , transformers
-  default-language: Haskell2010
-
-test-suite heb-project-test
-  type: exitcode-stdio-1.0
-  main-is: Spec.hs
-  other-modules:
-      Paths_heb_project
-  hs-source-dirs:
-      test
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      aeson
-    , base >=4.7 && <5
-    , heb-project
-    , http-types
-    , mtl
-    , postgresql-simple
-    , scotty
-    , text
-    , time
-    , transformers
+    , wai-extra
   default-language: Haskell2010

@@ -29,6 +29,14 @@ dependencies:
   - transformers
   - time
   - http-types
+  - bytestring
+  - wai-extra
+  - http-conduit
+  - amazonka
+  - amazonka-core
+  - amazonka-rekognition
+  - amazonka-s3
+  - lens
 
 ghc-options:
   - -Wall
@@ -48,17 +56,6 @@ executables:
   heb-project-exe:
     main: Main.hs
     source-dirs: app
-    ghc-options:
-      - -threaded
-      - -rtsopts
-      - -with-rtsopts=-N
-    dependencies:
-      - heb-project
-
-tests:
-  heb-project-test:
-    main: Spec.hs
-    source-dirs: test
     ghc-options:
       - -threaded
       - -rtsopts

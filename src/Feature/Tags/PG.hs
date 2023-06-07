@@ -5,11 +5,13 @@ module Feature.Tags.PG
     Tag,
     tagById,
     tagsByImgId,
+    tagByLabel,
   )
 where
 
+import Data.Maybe
 import qualified Data.Text as T
-import Database.PostgreSQL.Simple (close, connect, query)
+import Database.PostgreSQL.Simple (Only (..), close, connect, query)
 import Feature.Tags.Types (Tag (..))
 import Util.Config (pgConfig)
 
@@ -30,6 +32,15 @@ addTag l = do
   return $ head tags
   where
     q = "INSERT INTO tags (label) VALUES (?) RETURNING id, label"
+
+tagByLabel :: T.Text -> IO [Tag]
+tagByLabel l = do
+  c <- pgConfig >>= connect
+  tis <- query c q [T.unpack l]
+  close c
+  return tis
+  where
+    q = "SELECT * FROM tags WHERE label = ?"
 
 tagsByImgId :: Int -> IO [Tag]
 tagsByImgId i = do

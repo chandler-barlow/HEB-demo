@@ -1,6 +1,6 @@
 module Main (main) where
 
-import Feature.Images.HTTP (getImageById, getImages)
+import Feature.Images.HTTP (getImageById, getImages, uploadImage)
 import Util.Config (AppConfig (..), appConfig)
 import Web.Scotty (scotty)
 
@@ -10,3 +10,4 @@ main = do
   scotty (port config) $ do
     getImages
     getImageById
+    uploadImage
