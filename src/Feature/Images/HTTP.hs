@@ -5,10 +5,11 @@ module Feature.Images.HTTP (getImages, getImageById, uploadImage) where
 import Control.Monad (forM, forM_)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.ByteString.Lazy as B
+import Data.Either (rights)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import Feature.Images.PG (addImage, allImages, searchById, searchByTags)
-import Feature.Images.Requests (uploadImageToS3)
+import Feature.Images.Requests (rekognize, uploadImageToS3)
 import Feature.Images.Types (Image (..), Metadata (..), Response (..))
 import Feature.TagPairs.PG (addTagPair)
 import Feature.Tags.PG
@@ -21,6 +22,7 @@ import Web.Scotty
     get,
     json,
     param,
+    parseParam,
     post,
     rescue,
     status,
@@ -54,11 +56,6 @@ getImageById = get "/images/:id" $ do
   status status200
   json $ Response {items = imgs}
 
-po :: Show a => a -> IO ()
-po v = do
-  print v
-  return ()
-
 addTagIfNotExists :: T.Text -> IO Int
 addTagIfNotExists t = do
   ts <- tagByLabel t
@@ -66,23 +63,38 @@ addTagIfNotExists t = do
     [] -> addTag t >>= return . tagId
     ts -> return . tagId . head $ ts
 
+procTagParams :: T.Text -> IO [Int]
+procTagParams "" = return []
+procTagParams tags = do
+  let ts = toList tags
+  forM ts addTagIfNotExists
+
+procTagPairs :: Int -> [Int] -> IO ()
+procTagPairs imgId tagIds = forM_ tagIds $ \tagId -> addTagPair imgId tagId
+
+procAutoTag :: Bool -> T.Text -> IO [Int]
+procAutoTag False _ = return []
+procAutoTag True fname = do
+  ts <- rekognize fname
+  forM ts addTagIfNotExists
+
+toBool :: T.Text -> Bool
+toBool "true" = True
+toBool _ = False
+
 -- tp is file type btw
 uploadImage :: ScottyM ()
 uploadImage = post "/images" $ do
   fs <- files
-  _ <- liftIO (po fs)
-  let tp = TL.pack . show . fileContentType . snd . head $ fs
+  let ftype = TL.pack . show . fileContentType . snd . head $ fs
   let fname = TL.toStrict . fst . head $ fs
   let fcontent = B.toStrict . fileContent . snd . head $ fs
   uri <- liftIO $ uploadImageToS3 fname fcontent
-  i <- liftIO . addImage uri $ TL.toStrict tp
-  tags <- param "objects" `rescue` (\_ -> return ("" :: T.Text))
-  case tags of
-    "" -> return ()
-    _ -> do
-      let ts = toList tags
-      tis <- liftIO $ forM ts addTagIfNotExists
-      liftIO $ forM_ tis $ \ti -> addTagPair (imageId i) ti
-  -- autoTag <- param "autoTag" `rescue` (\_ -> return False)
+  img <- liftIO . addImage uri $ TL.toStrict ftype
+  tagParams <- param "objects" `rescue` (\_ -> return ("" :: T.Text))
+  aTagParam <- param "autotag" `rescue` (\_ -> return ("false" :: T.Text))
+  tagIds <- liftIO $ procTagParams tagParams
+  aTagIds <- liftIO $ procAutoTag (toBool aTagParam) fname
+  liftIO $ procTagPairs (imageId img) (tagIds ++ aTagIds)
   status status200
-  text $ TL.pack . T.unpack $ tags
+  json img
